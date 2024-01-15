@@ -1,20 +1,24 @@
 import mongoose from 'mongoose';
-import products from './data'
-import productModels from '../models/productModels';
+import products from './data.js'
+import productModels from '../models/productModels.js';
 
 
 const seedProducts = async () => {
     try {
 
-        mongoose.connect('mongodb://127.0.0.1:27017/shoppingwithshinto')
+       await mongoose.connect('mongodb://127.0.0.1:27017/shoppingwithshinto');
+
+       await productModels.deleteMany();
+       console.log('products are deleted')
 
         await productModels.insertMany(products);
         console.log('product inserted')
 
-        process.exit;
+        process.exit();
     } catch (error) {
-        process.exit;
+        console.log(error.message);
+        process.exit();
     }
-}
+};
 
 seedProducts();
