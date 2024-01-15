@@ -1,4 +1,6 @@
 import productModels from "../models/productModels.js"
+import ErrorHandling from "../utils/ErrorHandler.js";
+import caughtAsyncError from "../utils/caughtAsyncError.js";
 
 export const product = async (req, res) => {
 
@@ -16,16 +18,16 @@ export const newProduct = async (req, res) => {
     });
 }
 
-export const getSingleProduct = async (req, res) => {
+export const getSingleProduct =caughtAsyncError( async (req, res,next) => {
 
     const product = await productModels.findById(req?.params?.id);
 
     if (!product) {
-        res.status(404).json({ "message": "product not found" });
+        return next(ErrorHandling("product not found",404));
     }
 
     res.status(200).json({ product, });
-}
+});
 
 export const updateProduct = async (req, res) => {
 
