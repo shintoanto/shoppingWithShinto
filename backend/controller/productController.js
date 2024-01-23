@@ -7,11 +7,12 @@ import caughtAsyncError from "../utils/caughtAsyncError.js";
 // Get all products  => api/v1/product
 export const product = caughtAsyncError( async (req, res) => {
 
-    const apiFilters = new APIFilters(productModels,req.query).search();
+    const apiFilters = new APIFilters(productModels,req.query).search().filters();
 
     const productAll = await apiFilters.query;
 
     const productCount = productAll.length;
+
 
     // const allProducts =await productModels.find({});
 
