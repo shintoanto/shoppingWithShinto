@@ -7,16 +7,23 @@ import caughtAsyncError from "../utils/caughtAsyncError.js";
 // Get all products  => api/v1/product
 export const product = caughtAsyncError( async (req, res) => {
 
+    const pageRes = 4;
+
     const apiFilters = new APIFilters(productModels,req.query).search().filters();
 
     const productAll = await apiFilters.query;
 
     const productCount = productAll.length;
 
+    apiFilters.pagination(pageRes);
+
+    // NO idea what the use
+    productAll = await apiFilters.query.clone();
 
     // const allProducts =await productModels.find({});
 
     res.status(200).json({
+        pageRes,
         productCount,
         productAll,
     });

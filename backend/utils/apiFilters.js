@@ -32,6 +32,12 @@ class APIFilters {
 //  pagingation
     pagination (pageRes){
         const currentPage = Number(this.queryStr.page) || 1 ;
+
+        const skip = pageRes * (currentPage - 1);
+
+        this.query = this.query.limit(pageRes).skip(skip);
+    
+        return this;
     }
 }
 

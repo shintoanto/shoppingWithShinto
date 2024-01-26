@@ -4,6 +4,7 @@ import dotenv  from "dotenv";
 
 dotenv.config({path: "backend/config/config.env" });
 
+import authRoutes  from "./routes/authRoutes.js"
 import  productRout   from "./routes/productsRoutes.js";
 import { connectDatabse } from "./config/dbConnect.js";
 import ip  from "ip";
@@ -24,6 +25,7 @@ app.use(express.json());
 console.dir ( ip.address());
 console.log(ip.address());
 
+app.use('/api/v1',authRoutes);
 app.use('/api/v1',productRout);
 
 app.use(ErrorHandling);
