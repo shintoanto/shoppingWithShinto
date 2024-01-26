@@ -45,11 +45,14 @@ userModel.pre('save', async function (next) {
     console.log('password decrypted');
 });
 
+// Return jwt token
 userModel.methods.getJwtToken = function () {
-   return jwt.sign({ id: this._id }, process.env.JWT_TOKEN, { expiresIn: 60 });
-    console.log(this._id);
-    console.log('---------------');
-    console.log(process.env.JWT_TOKEN);
-    console.log('60');
+    return jwt.sign({ id: this._id }, process.env.JWT_TOKEN, { expiresIn: 60 });
 };
+
+// Compare password
+userModel.methods.comparePassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+
 export default mongoose.model("User", userModel);
