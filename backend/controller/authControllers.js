@@ -24,16 +24,15 @@ export const loginUser = caughtAsynchErrors(async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-       // return ErrorHandling("User is not in the list ", 400);
+         return ErrorHandling("User is not in the list ", 400);
 
-       return console.log("page not found");
     }
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-       // return ErrorHandling("Email or password is invalid", 401);
-       return console.log("page not found user");
+         return ErrorHandling("Email or password is invalid", 401);
+       
     }
 
     // check if password is correct
@@ -41,14 +40,28 @@ export const loginUser = caughtAsynchErrors(async (req, res, next) => {
 
 
     if (!isPasswordMatched) {
-       // return ErrorHandling("Email or password is invalid", 401);
-       return console.log("page not found password "+isPasswordMatched);
+         return ErrorHandling("Email or password is invalid", 401);
+        
     }
 
-       const token = user.getJwtToken();
-        res.status(200).json({ 
-            token,
-         });
+    const token = user.getJwtToken();
+    res.status(200).json({
+        token,
+    });
 
     sendToken(user, 200, res);
+});
+
+// logout user
+export const logoutUser = caughtAsynchErrors(async (req, res, next) => {
+
+    res.cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+    });
+
+    res.status(200).json({
+        message: "Logged Out"
+    });
+
 });
