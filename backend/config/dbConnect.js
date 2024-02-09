@@ -9,7 +9,7 @@ export const connectDatabse = () => {
     if(process.env.NODE_ENV === "PRODUCTION") DB_URL = process.env.DB_LOCAL_URI;
 
     mongoose.connect(DB_URL).then((cons)=>{
-        console.log('MOngoddb database connected'+DB_URL);
+        console.log('Mongoddb database connected'+DB_URL);
     });
     
 } 

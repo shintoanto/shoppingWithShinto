@@ -1,9 +1,12 @@
 import express from "express";
 import { deleteSingleProduct, getSingleProduct, newProduct, product, updateProduct } from "../controller/productController.js";
+import { isUserAuthentic } from "../middleware/authenticUser.js";
 const routes = express.Router();
 
 
-routes.route('/product').get(product);
+routes.route('/product').get(isUserAuthentic,product);
+
+console.log("/products/getproduct");
 
 routes.route("/admin/products").post(newProduct);
 

@@ -2,16 +2,17 @@ import productModels from "../models/productModels.js"
 import ErrorHandling from "../utils/ErrorHandler.js";
 import APIFilters from "../utils/apiFilters.js";
 import caughtAsyncError from "../utils/caughtAsyncError.js";
-
+console.log("/productController");
 
 // Get all products  => api/v1/product
 export const product = caughtAsyncError( async (req, res) => {
-
+    
+    console.log("/products/function");
     const pageRes = 4;
 
     const apiFilters = new APIFilters(productModels,req.query).search().filters();
 
-    const productAll = await apiFilters.query;
+    let productAll = await apiFilters.query;
 
     const productCount = productAll.length;
 
