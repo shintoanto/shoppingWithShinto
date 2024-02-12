@@ -65,3 +65,34 @@ export const logoutUser = caughtAsynchErrors(async (req, res, next) => {
     });
 
 });
+
+
+// reset password
+export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
+   
+    const { email, password } = req.body;
+
+
+
+    const user = await User.findOne({ email:req.body.email});
+
+    if (!user) {
+         return ErrorHandling("User is not found", 404);
+       
+    }
+
+  
+
+    // Get reset password
+    var resetToken= user.getResetPasswordToken();
+
+      // check if password is correct
+      await user.save();
+
+    if (!isPasswordMatched) {
+         return ErrorHandling("Invalid Email or password is invalid", 401);
+        
+    }
+
+    sendToken(user, 200, res);
+});
