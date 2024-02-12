@@ -68,7 +68,7 @@ export const logoutUser = caughtAsynchErrors(async (req, res, next) => {
 
 
 // reset password
-export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
+export const forgotPassword = caughtAsynchErrors(async (req, res, next) => {
 
     const { email, password } = req.body;
     const user = await User.findOne({ email: req.body.email });
@@ -109,3 +109,27 @@ export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
 
     sendToken(user, 200, res);
 });
+
+// reset password tokens
+export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
+   
+// verify reset password token 
+const resetPasswordToken = crypto
+  .createHash("sha256")
+  .update(req.params.token)
+  .digest("hex");
+
+const user = await User.findOne({
+  resetPasswordToken,
+  resetPasswordExpire: { $gt: Date.now() },
+});
+
+if (!user) {
+  return next(new ErrorHandling("Invalid Token", 400));
+}
+
+
+
+});
+
+
