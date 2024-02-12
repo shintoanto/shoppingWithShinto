@@ -24,15 +24,15 @@ export const loginUser = caughtAsynchErrors(async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-         return ErrorHandling("User is not in the list ", 400);
+        return ErrorHandling("User is not in the list ", 400);
 
     }
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-         return ErrorHandling("Email or password is invalid", 401);
-       
+        return ErrorHandling("Email or password is invalid", 401);
+
     }
 
     // check if password is correct
@@ -40,8 +40,8 @@ export const loginUser = caughtAsynchErrors(async (req, res, next) => {
 
 
     if (!isPasswordMatched) {
-         return ErrorHandling("Email or password is invalid", 401);
-        
+        return ErrorHandling("Email or password is invalid", 401);
+
     }
 
     const token = user.getJwtToken();
@@ -69,29 +69,42 @@ export const logoutUser = caughtAsynchErrors(async (req, res, next) => {
 
 // reset password
 export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
-   
+
     const { email, password } = req.body;
-
-
-
-    const user = await User.findOne({ email:req.body.email});
+    const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-         return ErrorHandling("User is not found", 404);
-       
+        return ErrorHandling("User is not found", 404);
+
     }
 
-  
-
     // Get reset password
-    var resetToken= user.getResetPasswordToken();
+    var resetToken = user.getResetPasswordToken();
 
-      // check if password is correct
-      await user.save();
+    // check if password is correct
+    await user.save();
 
     if (!isPasswordMatched) {
-         return ErrorHandling("Invalid Email or password is invalid", 401);
-        
+        return ErrorHandling("Invalid Email or password is invalid", 401);
+
+    }
+
+    const resetUrl = `${process.env.FRONT_END_URL}/api/v1/password/reset/${resetToken}`;
+
+    const message = getResetPasswordTemplate(user?.name, resetUrl);
+
+    try {
+        await sendEmail({
+            email:user.email,
+            subject:"ShopIT",
+            message,
+        });
+     } catch (error) {
+        user.resetPasswordToken = undefined
+        user.resetPasswordExpire = undefined
+
+        await user.save();
+        return next(new ErrorHandling(error?.message,500));
     }
 
     sendToken(user, 200, res);
