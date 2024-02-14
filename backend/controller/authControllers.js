@@ -3,36 +3,29 @@ import User from '../models/user.js';
 import ErrorHandling from '../utils/ErrorHandler.js';
 import sendToken from '../utils/sendToken.js';
 
-console.log("/authControllers");
 // Register user api/v1/register 
 export const registerUser = caughtAsynchErrors(async (req, res, next) => {
-    console.log("/authcontroller funtion");
+
     const { email, name, password } = req.body;
 
     const user = await User.create({ email, name, password });
-    const token = await user.getJwtToken();
 
-    res.status(200).json({
-        token,
-        user
-    });
+    sendToken(user, 201, res)
 });
 
-// login user api/v1/register 
+// login user api/v1/login
 export const loginUser = caughtAsynchErrors(async (req, res, next) => {
-    console.log("hai");
+
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return ErrorHandling("User is not in the list ", 400);
-
+        return new ErrorHandling("User is not in the list ", 400);
     }
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-        return ErrorHandling("Email or password is invalid", 401);
-
+        return new ErrorHandling("Email or password is invalid", 401);
     }
 
     // check if password is correct
@@ -40,14 +33,8 @@ export const loginUser = caughtAsynchErrors(async (req, res, next) => {
 
 
     if (!isPasswordMatched) {
-        return ErrorHandling("Email or password is invalid", 401);
-
+        return new ErrorHandling("Email or password is invalid", 401);
     }
-
-    const token = user.getJwtToken();
-    res.status(200).json({
-        token,
-    });
 
     sendToken(user, 200, res);
 });
@@ -95,16 +82,16 @@ export const forgotPassword = caughtAsynchErrors(async (req, res, next) => {
 
     try {
         await sendEmail({
-            email:user.email,
-            subject:"ShopIT",
+            email: user.email,
+            subject: "ShopIT",
             message,
         });
-     } catch (error) {
+    } catch (error) {
         user.resetPasswordToken = undefined
         user.resetPasswordExpire = undefined
 
         await user.save();
-        return next(new ErrorHandling(error?.message,500));
+        return next(new ErrorHandling(error?.message, 500));
     }
 
     sendToken(user, 200, res);
@@ -112,34 +99,44 @@ export const forgotPassword = caughtAsynchErrors(async (req, res, next) => {
 
 // reset password tokens
 export const resetPassword = caughtAsynchErrors(async (req, res, next) => {
-   
-// verify reset password token 
-const resetPasswordToken = crypto
-  .createHash("sha256")
-  .update(req.params.token)
-  .digest("hex");
 
-const user = await User.findOne({
-  resetPasswordToken,
-  resetPasswordExpire: { $gt: Date.now() },
+    // verify reset password token 
+    const resetPasswordToken = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        return next(new ErrorHandling("Invalid Token", 400));
+    }
+
+    if (req.body.password !== req.body.confirmPassword) {
+        return ErrorHandling("Password does not match", 401)
+    }
+
+    // set the new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+    sendToken(user, 200, res);
+
 });
 
-if (!user) {
-  return next(new ErrorHandling("Invalid Token", 400));
-}
+// Get user details  /api/v1/me
+export const getUserDetails = caughtAsynchErrors(async (req, res, next) => {
 
-if(req.body.password !== req.body.confirmPassword){
-    return ErrorHandling("Password does not match",401)
-}
+    const user = await User.findById(req?.user?._id);
 
-// set the new password
-user.password = req.body.password;
-user.resetPasswordToken=undefined;
-user.resetPasswordExpire=undefined;
-
-await user.save();
-sendToken(user, 200, res);
-
-});
+    res.status(200).json({
+        user,
+    })
+})
 
 

@@ -48,7 +48,7 @@ userModel.pre('save', async function (next) {
 
 // Return jwt token
 userModel.methods.getJwtToken = function () {
-    return jwt.sign({ id: this._id }, process.env.JWT_TOKEN, { expiresIn: 60 });
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET_TOKEN, { expiresIn: process.env.JWT_EXPIRE_TIME });
 };
 
 // Compare password

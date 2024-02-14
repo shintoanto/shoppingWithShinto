@@ -6,7 +6,6 @@ const routes = express.Router();
 
 routes.route('/product').get(product);
 
-
 routes.route("/admin/products").post(isUserAuthentic,authorizeuserRole("admin"),newProduct);
 
 routes.route("/product/:id").get(getSingleProduct);
