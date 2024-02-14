@@ -128,7 +128,17 @@ if (!user) {
   return next(new ErrorHandling("Invalid Token", 400));
 }
 
+if(req.body.password !== req.body.confirmPassword){
+    return ErrorHandling("Password does not match",401)
+}
 
+// set the new password
+user.password = req.body.password;
+user.resetPasswordToken=undefined;
+user.resetPasswordExpire=undefined;
+
+await user.save();
+sendToken(user, 200, res);
 
 });
 

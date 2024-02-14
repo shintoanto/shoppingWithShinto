@@ -26,4 +26,22 @@ export default (err, req, res, next) => {
         error = new ErrorHandling(message,404);
     };
 
+    // Handling mongoose key error
+    if(err.code === 11000){
+        const message = `Duplicate field entered ${Object.keys(err.keyValue)}entered`;
+        error = new ErrorHandling(message,404);
+    };
+
+    // Handling twt token error
+    if(err.name === "JSONWebTokenError"){
+        const message = "Invalid or expired token.";
+        error = new ErrorHandling(message,401)
+    }
+
+    // Handling token expiring time
+    if(err.name === "JSONWebTokenTime"){
+        const message = "json web token time expired"
+        error = new ErrorHandling(message,401);
+    }
+
 }
